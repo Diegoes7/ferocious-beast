@@ -1,11 +1,16 @@
 import Card from "../card/card.component";
+import { Beast } from "../../App";
 
 import "./card-list.styles.css";
 
-const CardList = ({ beasts }) => (
+type CardListProp = {
+	beasts: Beast[]
+}
+
+const CardList = ({ beasts }: CardListProp) => (
 	<div className="card-list">
 		{beasts.map((beast) => (
-			<Card beast={beast} />
+			<Card beast={beast}key={beast.id} />
 		))}
 	</div>
 );

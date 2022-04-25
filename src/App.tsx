@@ -1,7 +1,61 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import CardList from "./components/card-list/card-list.component";
 import SearchBox from "./components/search-box/search-box.component";
 import "./App.css";
+
+import { getData } from "./utils/data.utils";
+
+export type Beast = {
+	id: string;
+	name: string;
+	email: string;
+	company: any;
+};
+
+const App = () => {
+	// useState encapsulate local state in funnctional component
+	// when state value is changed function component is re-rendered
+	const [searchField, setSearchField] = useState("");
+	const [beasts, setBeasts] = useState<Beast[]>([]);
+	const [filteredBeasts, setFilteredBeasts] = useState(beasts);
+
+	useEffect(() => {
+		const fetchUsers = async () => {
+			const users = await getData<Beast[]>(
+				"https://jsonplaceholder.typicode.com/users"
+			);
+			setBeasts(users);
+		};
+		fetchUsers();
+	}, []);
+
+	useEffect(() => {
+		const filteredBeasts = beasts.filter((beast) =>
+			beast.name.toLocaleLowerCase().includes(searchField)
+		);
+		setFilteredBeasts(filteredBeasts);
+	}, [beasts, searchField]);
+
+	const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
+		const searchFieldString = e.target.value.toLocaleLowerCase();
+		setSearchField(searchFieldString);
+	};
+
+	return (
+		<div className="App">
+			<h1 className="app-title">Beasts Selection</h1>
+
+			<SearchBox
+				className="search-box"
+				handlerChange={handleSearch}
+				placeholder="find your beast"
+			/>
+			<CardList beasts={filteredBeasts} />
+		</div>
+	);
+};
+
+export default App;
 
 // class App extends Component {
 // 	//* initialize the state here, always runs first
@@ -63,44 +117,3 @@ import "./App.css";
 // 		);
 // 	}
 // }
-
-const App = () => {
-	// useState encapsulate local state in funnctional component
-	// when state value is changed function component is re-rendered
-	const [searchField, setSearchField] = useState("");
-	const [beasts, setBeasts] = useState([]);
-	const [filteredBeasts, setFilteredBeasts] = useState(beasts);
-
-	useEffect(() => {
-		fetch("https://jsonplaceholder.typicode.com/users")
-			.then((response) => response.json())
-			.then((users) => setBeasts(users));
-	}, []);
-
-	useEffect(() => {
-		const filteredBeasts = beasts.filter((beast) =>
-			beast.name.toLocaleLowerCase().includes(searchField)
-		);
-		setFilteredBeasts(filteredBeasts);
-	}, [beasts, searchField]);
-
-	const handleSearch = (e) => {
-		const searchFieldString = e.target.value.toLocaleLowerCase();
-		setSearchField(searchFieldString);
-	};
-
-	return (
-		<div className="App">
-			<h1 className="app-title">Beasts Selection</h1>
-
-			<SearchBox
-				className="search-box"
-				handlerChange={handleSearch}
-				placeholder="find your beast"
-			/>
-			<CardList beasts={filteredBeasts} />
-		</div>
-	);
-};
-
-export default App;
